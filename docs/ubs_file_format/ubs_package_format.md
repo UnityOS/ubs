@@ -1,9 +1,11 @@
 # UBS Package Format
 
+Version 0.0.1
+
 UBS stands for "UnityOS Build System". It is a `golang` application that has support
 for building UnityOS Packages.
 
-## UBS Structure
+## UBS Source Package Structure
 ```text
 package root
  |
@@ -44,7 +46,8 @@ build {
         }
         
         libraryDevel "requiredLib-dev" {
-        
+            // This library is required only on the development / build workstation
+            // And not required on the target
         }
         
         
@@ -57,13 +60,20 @@ build {
     
     // Actual build steps
     build {
-    
+        // Package is required to be built on same type host
+        // i.e. False could be for golang
+        sameArch = false
+        
         // use "externalPlugin" {
         // }
         // RESERVED FOR FUTURE USE
    
         arch "amd64" {
             type "generic" {
+                env {
+                    // environment variables (if needed)
+                }
+                
                 commands = [
                     "./configure",
                     "make",
@@ -98,4 +108,52 @@ build {
 
 ```
 ### Contents
-Contents folder contains root of the source code
+Contents folder contains root of the source code.
+
+## Format
+The `package.hcl` file and the Contents folder is `tar`-ed into an archive, and then
+compressed with zstd. 
+
+## Digital Signature
+TBA - not yet supported
+
+## UBS Binary Package Structure
+
+```text
+package root
+ |
+ ------- package.hcl
+ |
+ ------- Contents
+```
+
+### package.hcl
+File providing instructions for the build system how to build a package and what is needed.
+It is largely inspired by Hashicorp Waypoint.
+
+```hcl
+// 
+name = "Package name"
+version = "0.1.0" // According to Semantic Versioning
+maintainer = ""
+
+contents{}
+requirements{}
+preinstall{}
+install{}
+postinstall {}
+preupdate{}
+postupdate{}
+preremove{}
+remove{}
+postremove{}
+```
+### Contents
+Contents folder contains distribution of the package.
+
+## Format
+The `package.hcl` file and the Contents folder is `tar`-ed into an archive, and then
+compressed with zstd.
+
+## Digital Signature
+TBA - not yet supported
